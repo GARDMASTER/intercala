@@ -16,16 +16,29 @@ public class Main {
 	public static void main(String[] args) {
 		
 		RandomAccessFile f = null;
-		Integer qtdRegistros = 0;
+		String qtdRegistros = null;
 		Scanner scanInt = new Scanner(System.in);
 		Scanner scanTxt = new Scanner(System.in);
+		boolean valido = false;
 		
 		try {
 			f = buscaCepOrdenado();
-			System.out.println("O arquivo de CEP's possui "+f.length()/300+" registros.");
-			System.out.println("Entre com a quantidade de registros que deseja gravar separadamente em dois arquivos ordenados: ");
-			qtdRegistros = scanInt.nextInt();
-			gravarDoisArquivos(f, qtdRegistros);
+			System.out.println("O arquivo de CEP's possui "+(f.length()/300)+" registros.");
+			do {
+				System.out.println("Entre com a quantidade de registros que deseja gravar separadamente em dois arquivos ordenados: ");
+				qtdRegistros = scanInt.nextLine();
+				
+				if(!isOnlyNumbers(qtdRegistros)) {
+					System.out.println("Somente dígitos são válidos");
+					valido = false;
+				} else if (Long.parseLong(qtdRegistros) > (f.length()/300)) {
+					System.out.println("O número digitado é maior que o número de linhas do arquivo.");
+				} else {
+					valido = true;
+				}
+				
+			} while (!valido);
+			gravarDoisArquivos(f, Long.parseLong(qtdRegistros));
 			
 			
 			
@@ -54,14 +67,16 @@ public class Main {
 		return f;
 	}
 	
-	public static void gravarDoisArquivos(RandomAccessFile f, Integer qtdRegistros) throws IOException {
+	public static void gravarDoisArquivos(RandomAccessFile f, Long qtdRegistros) throws IOException {
 		
 		OutputStream saida = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq1.dat");
 		OutputStream saida2 = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq2.dat");
 		DataOutputStream dout = null;
 		byte[] endereco = new byte [300];
 	 
-	    for (int i = 1; i <= qtdRegistros; i++) {
+		System.out.println(f.length());
+		
+	    for (int i = 0; i < qtdRegistros; i++) {
 			
 	    	if(Math.random() > 0.5) {
 				f.seek(REGISTRO*i);
@@ -75,10 +90,24 @@ public class Main {
 				dout.write(endereco);
 			}
 	    	
+	    	System.out.println("REGISTRO*i: "+REGISTRO*i);
 		}
 	    
 	    dout.close();
 		saida.close();
 		saida2.close();
+	}
+	
+	public static boolean isOnlyNumbers(String x) {
+		boolean isOnlyNumbers = false;
+		
+		try {
+			Long.parseLong(x);
+			isOnlyNumbers =  true;
+		} catch (NumberFormatException e) {
+			isOnlyNumbers =  false;
+		}
+		
+		return isOnlyNumbers;
 	}
 }
