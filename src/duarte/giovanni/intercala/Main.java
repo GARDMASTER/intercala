@@ -1,6 +1,7 @@
 package duarte.giovanni.intercala;
 
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class Main {
 		
 		RandomAccessFile f = null;
 		String qtdRegistros = null;
+		RandomAccessFile[] arqs = null;
 		Scanner scanInt = new Scanner(System.in);
 		Scanner scanTxt = new Scanner(System.in);
 		boolean valido = false;
@@ -38,8 +40,15 @@ public class Main {
 				}
 				
 			} while (!valido);
-			gravarDoisArquivos(f, Long.parseLong(qtdRegistros));
 			
+			arqs = gravarDoisArquivos(f, Long.parseLong(qtdRegistros));
+			System.out.println("Arquivos gravados com sucesso.");
+			
+			System.out.println("O programa começará a intercalação dos arquivos.");
+			System.out.println("Intercalando...");
+			
+			intercala(arqs[0], arqs[1]);
+
 			
 			
 		} catch (FileNotFoundException e) {
@@ -67,35 +76,44 @@ public class Main {
 		return f;
 	}
 	
-	public static void gravarDoisArquivos(RandomAccessFile f, Long qtdRegistros) throws IOException {
+	public static RandomAccessFile[] gravarDoisArquivos(RandomAccessFile f, Long qtdRegistros) throws IOException {
+		
 		
 		OutputStream saida = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq1.dat");
 		OutputStream saida2 = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq2.dat");
 		DataOutputStream dout = null;
 		byte[] endereco = new byte [300];
+		Endereco end = new Endereco();
 	 
-		System.out.println(f.length());
-		
 	    for (int i = 0; i < qtdRegistros; i++) {
 			
 	    	if(Math.random() > 0.5) {
 				f.seek(REGISTRO*i);
-				f.readFully(endereco);
+				System.out.println("filepointer: "+f.getFilePointer());
+				end.leEndereco(f);
+				System.out.println("cep: "+end.getCep());
 				dout = new DataOutputStream(saida);
-				dout.write(endereco);
+				end.escreveEndereco(dout);
 			} else {
 				f.seek(REGISTRO*i);
-				f.readFully(endereco);
+				System.out.println("filepointer: "+f.getFilePointer());
+				end.leEndereco(f);
+				System.out.println("cep: "+end.getCep());
 				dout = new DataOutputStream(saida2);
-				dout.write(endereco);
+				end.escreveEndereco(dout);
 			}
 	    	
-	    	System.out.println("REGISTRO*i: "+REGISTRO*i);
 		}
 	    
 	    dout.close();
 		saida.close();
 		saida2.close();
+		
+		RandomAccessFile[] arqs = new RandomAccessFile[2];
+		arqs[0] = new RandomAccessFile("C:\\\\Users\\\\Sala\\\\workspace\\\\eclipse\\\\intercala\\\\files\\\\arq1.dat", "r");
+		arqs[1] = new RandomAccessFile("C:\\\\Users\\\\Sala\\\\workspace\\\\eclipse\\\\intercala\\\\files\\\\arq2.dat", "r");
+		
+		return arqs;
 	}
 	
 	public static boolean isOnlyNumbers(String x) {
@@ -110,4 +128,63 @@ public class Main {
 		
 		return isOnlyNumbers;
 	}
+	
+	public static String intercala(RandomAccessFile f1, RandomAccessFile f2) throws IOException {
+		
+		OutputStream saidaFinal = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arqFinal.dat\\");
+		DataOutputStream doutFinal = new DataOutputStream(saidaFinal);
+		
+		Endereco end1 = new Endereco();
+		Endereco end2 = new Endereco();
+		
+		f1.seek(0);
+		f2.seek(0);
+		end1.leEndereco(f1);
+		end2.leEndereco(f2);
+		
+		int i = 1;
+		int j = 1;
+		
+		System.out.println("f1 length: "+f1.length());
+		System.out.println("f2 length: "+f2.length());
+		
+		while(f1.getFilePointer() < f1.length() || f2.getFilePointer() < f2.length()) {
+			
+			System.out.println("compareTo: "+end1.getCep().compareTo(end2.getCep()));
+			if(end1.getCep().compareTo(end2.getCep()) > 0) {
+				try {
+					System.out.println("end1: "+end1.getCep());
+					System.out.println("end2: "+end2.getCep());
+					end2.escreveEndereco(doutFinal);
+					f2.seek(REGISTRO*j);
+					end2.leEndereco(f2);
+					j++;
+				}catch(EOFException e) {
+					j++;
+				}
+				
+				
+			} else {
+				try {
+					System.out.println("end1: "+end1.getCep());
+					System.out.println("end2: "+end2.getCep());
+					end1.escreveEndereco(doutFinal);
+					f1.seek(REGISTRO*i);
+					end1.leEndereco(f1);
+					i++;
+				}catch(EOFException e) {
+					i++;
+				}
+			}
+			
+			System.out.println("i: "+i);
+			System.out.println("j: "+j);
+			
+		}
+		
+		saidaFinal.close();
+		doutFinal.close();
+		return null;
+	}
+	
 }
