@@ -71,7 +71,7 @@ public class Main {
 
 	public static RandomAccessFile buscaCepOrdenado() throws FileNotFoundException{
 		
-		RandomAccessFile f = new RandomAccessFile("C:\\Users\\Sala\\workspace\\eclipse\\busca-binaria\\files\\cep_ordenado.dat", "r");
+		RandomAccessFile f = new RandomAccessFile("/home/aluno/Documentos/gard/intercala/files/cep_ordenado.dat", "r");
 		
 		return f;
 	}
@@ -79,8 +79,8 @@ public class Main {
 	public static RandomAccessFile[] gravarDoisArquivos(RandomAccessFile f, Long qtdRegistros) throws IOException {
 		
 		
-		OutputStream saida = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq1.dat");
-		OutputStream saida2 = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq2.dat");
+		OutputStream saida = new FileOutputStream("/home/aluno/Documentos/gard/intercala/files/arq1.dat");
+		OutputStream saida2 = new FileOutputStream("/home/aluno/Documentos/gard/intercala/files/arq2.dat");
 		DataOutputStream dout = null;
 		byte[] endereco = new byte [300];
 		Endereco end = new Endereco();
@@ -89,16 +89,12 @@ public class Main {
 			
 	    	if(Math.random() > 0.5) {
 				f.seek(REGISTRO*i);
-				System.out.println("filepointer: "+f.getFilePointer());
 				end.leEndereco(f);
-				System.out.println("cep: "+end.getCep());
 				dout = new DataOutputStream(saida);
 				end.escreveEndereco(dout);
 			} else {
 				f.seek(REGISTRO*i);
-				System.out.println("filepointer: "+f.getFilePointer());
 				end.leEndereco(f);
-				System.out.println("cep: "+end.getCep());
 				dout = new DataOutputStream(saida2);
 				end.escreveEndereco(dout);
 			}
@@ -110,8 +106,8 @@ public class Main {
 		saida2.close();
 		
 		RandomAccessFile[] arqs = new RandomAccessFile[2];
-		arqs[0] = new RandomAccessFile("C:\\\\Users\\\\Sala\\\\workspace\\\\eclipse\\\\intercala\\\\files\\\\arq1.dat", "r");
-		arqs[1] = new RandomAccessFile("C:\\\\Users\\\\Sala\\\\workspace\\\\eclipse\\\\intercala\\\\files\\\\arq2.dat", "r");
+		arqs[0] = new RandomAccessFile("/home/aluno/Documentos/gard/intercala/files/arq1.dat", "r");
+		arqs[1] = new RandomAccessFile("/home/aluno/Documentos/gard/intercala/files/arq2.dat", "r");
 		
 		return arqs;
 	}
@@ -131,7 +127,7 @@ public class Main {
 	
 	public static String intercala(RandomAccessFile f1, RandomAccessFile f2) throws IOException {
 		
-		OutputStream saidaFinal = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arqFinal.dat\\");
+		OutputStream saidaFinal = new FileOutputStream("/home/aluno/Documentos/gard/intercala/files/arqFinal.dat");
 		DataOutputStream doutFinal = new DataOutputStream(saidaFinal);
 		
 		Endereco end1 = new Endereco();
@@ -150,35 +146,17 @@ public class Main {
 		
 		while(f1.getFilePointer() < f1.length() || f2.getFilePointer() < f2.length()) {
 			
-			System.out.println("compareTo: "+end1.getCep().compareTo(end2.getCep()));
 			if(end1.getCep().compareTo(end2.getCep()) > 0) {
-				try {
-					System.out.println("end1: "+end1.getCep());
-					System.out.println("end2: "+end2.getCep());
-					end2.escreveEndereco(doutFinal);
-					f2.seek(REGISTRO*j);
-					end2.leEndereco(f2);
-					j++;
-				}catch(EOFException e) {
-					j++;
-				}
-				
-				
+				end2.escreveEndereco(doutFinal);
+				f2.seek(REGISTRO*j);
+				end2.leEndereco(f2);
+				j++;
 			} else {
-				try {
-					System.out.println("end1: "+end1.getCep());
-					System.out.println("end2: "+end2.getCep());
-					end1.escreveEndereco(doutFinal);
-					f1.seek(REGISTRO*i);
-					end1.leEndereco(f1);
-					i++;
-				}catch(EOFException e) {
-					i++;
-				}
+				end1.escreveEndereco(doutFinal);
+				f1.seek(REGISTRO*i);
+				end1.leEndereco(f1);
+				i++;
 			}
-			
-			System.out.println("i: "+i);
-			System.out.println("j: "+j);
 			
 		}
 		
