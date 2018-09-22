@@ -89,16 +89,12 @@ public class Main {
 			
 	    	if(Math.random() > 0.5) {
 				f.seek(REGISTRO*i);
-				System.out.println("filepointer: "+f.getFilePointer());
 				end.leEndereco(f);
-				System.out.println("cep: "+end.getCep());
 				dout = new DataOutputStream(saida);
 				end.escreveEndereco(dout);
 			} else {
 				f.seek(REGISTRO*i);
-				System.out.println("filepointer: "+f.getFilePointer());
 				end.leEndereco(f);
-				System.out.println("cep: "+end.getCep());
 				dout = new DataOutputStream(saida2);
 				end.escreveEndereco(dout);
 			}
@@ -136,50 +132,29 @@ public class Main {
 		
 		Endereco end1 = new Endereco();
 		Endereco end2 = new Endereco();
-		
-		f1.seek(0);
-		f2.seek(0);
+
 		end1.leEndereco(f1);
 		end2.leEndereco(f2);
 		
-		int i = 1;
-		int j = 1;
-		
-		System.out.println("f1 length: "+f1.length());
-		System.out.println("f2 length: "+f2.length());
-		
-		while(f1.getFilePointer() < f1.length() || f2.getFilePointer() < f2.length()) {
+		while(f1.getFilePointer() < f1.length() && f2.getFilePointer() < f2.length()) {
 			
-			System.out.println("compareTo: "+end1.getCep().compareTo(end2.getCep()));
 			if(end1.getCep().compareTo(end2.getCep()) > 0) {
-				try {
-					System.out.println("end1: "+end1.getCep());
-					System.out.println("end2: "+end2.getCep());
-					end2.escreveEndereco(doutFinal);
-					f2.seek(REGISTRO*j);
-					end2.leEndereco(f2);
-					j++;
-				}catch(EOFException e) {
-					j++;
-				}
-				
-				
+				end2.escreveEndereco(doutFinal);
+				end2.leEndereco(f2);
 			} else {
-				try {
-					System.out.println("end1: "+end1.getCep());
-					System.out.println("end2: "+end2.getCep());
-					end1.escreveEndereco(doutFinal);
-					f1.seek(REGISTRO*i);
-					end1.leEndereco(f1);
-					i++;
-				}catch(EOFException e) {
-					i++;
-				}
+				end1.escreveEndereco(doutFinal);
+				end1.leEndereco(f1);
 			}
-			
-			System.out.println("i: "+i);
-			System.out.println("j: "+j);
-			
+		}
+		
+		while(f1.getFilePointer() < f1.length()) {
+			end1.leEndereco(f1);
+			end1.escreveEndereco(doutFinal);
+		}
+		
+		while(f2.getFilePointer() < f2.length()) {
+			end2.escreveEndereco(doutFinal);
+			end2.leEndereco(f2);
 		}
 		
 		saidaFinal.close();
