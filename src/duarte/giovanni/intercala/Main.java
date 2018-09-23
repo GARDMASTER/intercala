@@ -47,7 +47,7 @@ public class Main {
 			System.out.println("O programa começará a intercalação dos arquivos.");
 			System.out.println("Intercalando...");
 			
-			intercala(arqs[0], arqs[1]);
+			System.out.println(intercala(arqs[0], arqs[1]));
 
 			System.out.println("FIM.");
 			
@@ -83,7 +83,6 @@ public class Main {
 		OutputStream saida = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq1.dat");
 		OutputStream saida2 = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arq2.dat");
 		DataOutputStream dout = null;
-		byte[] endereco = new byte [300];
 		Endereco end = new Endereco();
 	 
 	    for (int i = 0; i < qtdRegistros; i++) {
@@ -130,37 +129,89 @@ public class Main {
 		
 		OutputStream saidaFinal = new FileOutputStream("C:\\Users\\Sala\\workspace\\eclipse\\intercala\\files\\arqFinal.dat\\");
 		DataOutputStream doutFinal = new DataOutputStream(saidaFinal);
+		String mensagem = "";
 		
 		Endereco end1 = new Endereco();
 		Endereco end2 = new Endereco();
 
-		end1.leEndereco(f1);
-		end2.leEndereco(f2);
-		
-		while(f1.getFilePointer() < f1.length() && f2.getFilePointer() < f2.length()) {
-			
-			if(end1.getCep().compareTo(end2.getCep()) > 0) {
-				end2.escreveEndereco(doutFinal);
-				end2.leEndereco(f2);
-			} else {
-				end1.escreveEndereco(doutFinal);
-				end1.leEndereco(f1);
-			}
-		}
-		
-		while(f1.getFilePointer() < f1.length()) {
+		boolean igualLength1 = false;
+		boolean igualLength2 = false;
+		boolean ultimoEndGravado1 = false;
+		boolean ultimoEndGravado2 = false;
+
+		if(f1.length()==0 || f2.length()==0) {
+			mensagem += "Um dos arquivos está vazio!";
+		} else {
 			end1.leEndereco(f1);
-			end1.escreveEndereco(doutFinal);
-		}
-		
-		while(f2.getFilePointer() < f2.length()) {
-			end2.escreveEndereco(doutFinal);
 			end2.leEndereco(f2);
+			
+			while(f1.getFilePointer() <= f1.length() && f2.getFilePointer() <= f2.length()) {
+				
+				if(f1.getFilePointer() == f1.length()) {
+					igualLength1 = true;
+				} else if(f2.getFilePointer() == f2.length()) {
+					igualLength2 = true;
+				}
+				
+				if(end1.getCep().compareTo(end2.getCep()) > 0) {
+					end2.escreveEndereco(doutFinal);
+					if(f2.getFilePointer() >= f2.length()) {
+						ultimoEndGravado2 = true;
+						break;
+					} else {
+						end2.leEndereco(f2);
+					}
+				} else {
+					end1.escreveEndereco(doutFinal);
+					if(f1.getFilePointer() >= f1.length()) {
+						ultimoEndGravado1 = true;
+						break;
+					} else {
+						end1.leEndereco(f1);
+					}
+				}
+				
+			}
+			
+			
+			while(f1.getFilePointer() <= f1.length()) {
+				if(ultimoEndGravado1 && igualLength1) {
+					break;
+				} else if(!ultimoEndGravado1 && igualLength1) {
+					end1.escreveEndereco(doutFinal);
+					break;
+				} else {
+					end1.escreveEndereco(doutFinal);
+					if(f1.getFilePointer() >= f1.length()) {
+						break;
+					} else {
+						end1.leEndereco(f1);
+					}
+				}
+			}
+			
+			while(f2.getFilePointer() <= f2.length()) {
+				if(ultimoEndGravado2 && igualLength2) {
+					break;
+				} else if(!ultimoEndGravado2 && igualLength2) {
+					end2.escreveEndereco(doutFinal);
+					break;
+				} else {
+					end2.escreveEndereco(doutFinal);
+					if(f2.getFilePointer() >= f2.length()) {
+						break;
+					} else {
+						end2.leEndereco(f2);
+					}
+				}
+			}
+			
+			mensagem += "Intercalação realizada com sucesso!";
 		}
 		
 		saidaFinal.close();
 		doutFinal.close();
-		return null;
+		return mensagem;
 	}
 	
 }
