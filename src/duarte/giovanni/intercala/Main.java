@@ -49,6 +49,7 @@ public class Main {
 			
 			intercala(arqs[0], arqs[1]);
 
+			System.out.println("FIM.");
 			
 			
 		} catch (FileNotFoundException e) {
